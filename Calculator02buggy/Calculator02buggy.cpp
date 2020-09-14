@@ -77,7 +77,7 @@ Token Token_stream::get()
     switch (ch) {
     case ';':    // for "print"
     case 'q':    // for "quit"
-    case '(': case ')': case '}': case '{': case '+': case '-': case '*': case '/':
+    case '(': case ')': case '}': case '{': case '+': case '-': case '*': case '/': case '!':
         return Token(ch);        // let each character represent itself
     case '.':
     case '0': case '1': case '2': case '3': case '4':
@@ -99,6 +99,18 @@ Token_stream ts;        // provides get() and putback()
 
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+
+bool is_factorial();    // check token on ! 
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+double factorial(double num);       // calculate to factorial 
+
+//------------------------------------------------------------------------------
+
 double expression();    // declaration so that primary() can call expression()
 
 //------------------------------------------------------------------------------
@@ -113,10 +125,17 @@ double primary()
         double d = expression();
         t = ts.get();
         if (t.kind != ')' && t.kind != '}') error("')' expected");
-            return d;
+        return d;
     }
-    case '8':            // we use '8' to represent a number
+    case '8': case'!':   // we use '8' to represent a number
+    {
+        if (is_factorial()) {
+            double d = factorial(t.value);
+            t = ts.get();
+            return d;
+        }
         return t.value;  // return the number's value
+    }  
     default:
         error("primary expected");
     }
@@ -151,6 +170,28 @@ double term()
     }
 }
 
+//------------------------------------------------------------------------------
+
+// check number on !
+bool is_factorial()
+{
+    Token t = ts.get();
+    if (t.kind == '!') {
+        ts.putback(t);
+        return true;
+    }
+    ts.putback(t);
+    return false;
+}
+
+//------------------------------------------------------------------------------
+
+//calculate factorial
+double factorial(double num)
+{
+    if (num <= 1) return 1;
+    return num * factorial(num - 1);
+}
 //------------------------------------------------------------------------------
 
 // deal with + and -
